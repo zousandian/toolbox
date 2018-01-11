@@ -3,7 +3,7 @@
     <h1>CSV-JSON Converter</h1>
     <section class="input-wrapper">
       <div class="form-control">
-        选择CSV文件或直接输入：<input type="file" @change="handlerFile">
+        选择CSV/XLS文件或直接输入：<input type="file" @change="handlerFile" accept=".xlsx, .xls, .csv">
       </div>
       <textarea v-model="csv"></textarea>
     </section>
@@ -36,16 +36,13 @@
 
 <script>
 import csv2json from 'csvtojson'
-import xls2json from 'xlsx'
-
-console.log(xls2json)
+import XLSX from 'xlsx'
 
 export default {
   name: 'csv-json',
   data () {
     return {
-      fileType: '',
-      rawData: '',
+      csv: '',
       output: [],
       setting: {
         hasHeader: true,
@@ -64,11 +61,11 @@ export default {
     }
   },
   watch: {
-    rawData (val) {
-      this.covert()
+    csv (val) {
+      this.convert()
     },
     'setting.hasHeader' () {
-      this.covert()
+      this.convert()
     }
   },
   methods: {
@@ -76,7 +73,7 @@ export default {
       const file = e.target.files[0]
       this.fileType = file.type
       if (file.type.startsWith('text')) {
-        this.handeleCsv(file)
+        this.handleCsv(file)
       } else {
         this.handleXls(file)
       }
@@ -84,23 +81,25 @@ export default {
     handleCsv (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        this.rawData = e.target.result
+        this.csv = e.target.result
       }
       reader.readAsText(file)
     },
     handleXls (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result)
+        const workbook = XLSX.read(data, {
+          type: 'array'
+        })
 
+        console.log(workbook)
+        this.csv = XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]])
       }
       reader.readAsArrayBuffer(file)
     },
-    covert () {
-      if (this.fileType.startsWith('text')) {
-        this.csv2json()
-      } else {
-        this.xls2json()
-      }
+    convert () {
+      this.csv2json()
     },
     csv2json () {
       this.output = []
@@ -108,23 +107,10 @@ export default {
         noheader: !this.setting.hasHeader
       }).fromString(this.csv)
       .on('csv', (csvRow) => {
-        console.log(csvRow)
+        // console.log(csvRow)
       })
       .on('json', (json) => {
-        console.log(json)
-        this.output.push(json)
-      })
-    },
-    xls2json () {
-      this.output = []
-      csv2json({
-        noheader: !this.setting.hasHeader
-      }).fromString(this.csv)
-      .on('csv', (csvRow) => {
-        console.log(csvRow)
-      })
-      .on('json', (json) => {
-        console.log(json)
+        // console.log(json)
         this.output.push(json)
       })
     }
