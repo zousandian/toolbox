@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import 'normalize.css'
 export default {
   name: 'app'
 }
@@ -19,4 +20,5 @@ export default {
 * {
   box-sizing: border-box;
 }
+
 </style>

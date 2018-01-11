@@ -2,7 +2,7 @@
   <div class="page">
     <ul>
       <li v-for="route in routes">
-        <router-link :to="{name: route.name}">{{ route.name }}</router-link>
+        <router-link :to="{name: route.name}">{{ route.meta.title || route.name }}</router-link>
       </li>
     </ul>
     <router-view></router-view>
@@ -20,3 +20,6 @@ export default {
   }
 }
 </script>
+<style>
+
+</style>
