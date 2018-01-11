@@ -36,13 +36,16 @@
 
 <script>
 import csv2json from 'csvtojson'
-const reader = new FileReader()
+import xls2json from 'xlsx'
+
+console.log(xls2json)
 
 export default {
   name: 'csv-json',
   data () {
     return {
-      csv: '',
+      fileType: '',
+      rawData: '',
       output: [],
       setting: {
         hasHeader: true,
@@ -61,19 +64,45 @@ export default {
     }
   },
   watch: {
-    csv (val) {
-      this.convert()
+    rawData (val) {
+      this.covert()
     },
     'setting.hasHeader' () {
-      this.convert()
+      this.covert()
     }
   },
   methods: {
     handlerFile (e) {
       const file = e.target.files[0]
+      this.fileType = file.type
+      if (file.type.startsWith('text')) {
+        this.handeleCsv(file)
+      } else {
+        this.handleXls(file)
+      }
+    },
+    handleCsv (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        this.rawData = e.target.result
+      }
       reader.readAsText(file)
     },
-    convert () {
+    handleXls (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+
+      }
+      reader.readAsArrayBuffer(file)
+    },
+    covert () {
+      if (this.fileType.startsWith('text')) {
+        this.csv2json()
+      } else {
+        this.xls2json()
+      }
+    },
+    csv2json () {
       this.output = []
       csv2json({
         noheader: !this.setting.hasHeader
@@ -85,11 +114,19 @@ export default {
         console.log(json)
         this.output.push(json)
       })
-    }
-  },
-  mounted () {
-    reader.onload = (e) => {
-      this.csv = e.target.result
+    },
+    xls2json () {
+      this.output = []
+      csv2json({
+        noheader: !this.setting.hasHeader
+      }).fromString(this.csv)
+      .on('csv', (csvRow) => {
+        console.log(csvRow)
+      })
+      .on('json', (json) => {
+        console.log(json)
+        this.output.push(json)
+      })
     }
   }
 }
