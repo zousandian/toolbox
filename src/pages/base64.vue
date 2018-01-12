@@ -5,9 +5,9 @@
     <section>
       <div>
         <p>选择图片：</p>
-        <input type="file" accept="image/gif, image/png, image/jpg, image/jpeg" @change="handlerFile">
+        <input type="file" accept="image/gif, image/png, image/jpg, image/jpeg" @change="handleFile">
         <p>或者输入图片链接并回车：</p>
-        <input type="text" placeholder="输入图片链接" @keyup.enter="handlerFileFromUrl">
+        <input type="text" placeholder="输入图片链接" @keyup.enter="handleFileFromUrl">
       </div>
 
       <div>
@@ -49,7 +49,7 @@ export default {
     }
   },
   methods: {
-    handlerFile (e) {
+    handleFile (e) {
       console.log(e.target.files)
       const file = e.target.files[0]
       this.file = {
@@ -61,7 +61,7 @@ export default {
       }
       reader.readAsDataURL(file)
     },
-    handlerFileFromUrl (e) {
+    handleFileFromUrl (e) {
       const url = e.target.value.trim()
       if (!url.startsWith('http')) {
         alert('请输入正确的图片链接')
