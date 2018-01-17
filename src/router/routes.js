@@ -28,6 +28,12 @@ const routes = [{
   meta: {
     title: 'CSV转JSON'
   }
+}, {
+  path: '/mockup-tool',
+  name: 'mockup-tool',
+  meta: {
+    title: 'Mockup Tool'
+  }
 }]
 
 export default routes
