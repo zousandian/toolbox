@@ -47,8 +47,7 @@
 
 <script>
 import QrCode from 'qrcode'
-import QrCodeReader from 'qrcode-reader'
-const qrReader = new QrCodeReader()
+import jsQR from 'jsqr'
 
 export default {
   name: 'base64',
@@ -85,23 +84,29 @@ export default {
       const url = URL.createObjectURL(file)
       const img = this.$refs.img
 
-      this.decode.imgUrl = url
-      img.src = url
+      img.onload = () => {
+        console.log(img.width, img.height, img.naturalWidth, img.naturalHeight)
+        const canvas = document.createElement('canvas')
+        canvas.width = img.naturalWidth
+        canvas.height = img.naturalHeight
 
-      qrReader.callback = (err, res) => {
-        URL.revokeObjectURL(url)
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0)
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
-        if (err) {
-          console.error(err)
+        const code = jsQR(imgData.data, imgData.width, imgData.height)
+
+        if (code) {
+          console.log(code)
+          this.decode.result = code.data
+        } else {
           this.decode.result = ''
           alert('没有检测到二维码。')
-          return
         }
-
-        this.decode.result = res.result
       }
 
-      qrReader.decode(url)
+      this.decode.imgUrl = url
+      img.src = url
     },
     generateQrCode (e) {
       const canvas = this.$refs.canvas
@@ -162,6 +167,8 @@ export default {
     border: 1px dashed #666;
     padding: 25px 10px;
     text-align: center;
+    word-wrap: break-word;
+    word-break: break-all;
   }
 
   textarea {
